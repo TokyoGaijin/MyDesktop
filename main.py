@@ -5,6 +5,9 @@ import sqlite3
 import os
 import pyautogui
 import time
+import tkinter as tk
+from tkinter.simpledialog import askstring
+import subprocess
 
 pygame.init()
 pygame.font.init()
@@ -15,6 +18,14 @@ BG = cs.cornflower_blue["pygame"]
 FPS = 60
 CLOCK = pygame.time.Clock()
 BASE_DIR = os.path.dirname(__file__)
+
+def input_dialog(header, prompt):
+    root = tk.Tk()
+    root.withdraw()
+    
+    result = askstring(header, prompt)
+    
+    return result
 
 
 class SystemMenuBar:
@@ -65,6 +76,11 @@ class SystemMenuBar:
             self.selected_icon = pygame.image.load(os.path.join(BASE_DIR, "png_icons", "mac_selected.png"))
             self.current_icon = self.apps_icon
             self.rect = pygame.Rect(posX, posY, self.apps_icon.get_width(), self.apps_icon.get_height())
+            self.apps_list = []
+            
+        def on_click(self):
+            if len(self.apps_list) <= 0:
+                pyautogui.alert("No applications installed.")
             
         def update(self):
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -95,7 +111,13 @@ class SystemMenuBar:
             super().__init__(posX, posY, menu_name, width)
             ## TODO: Add drop-down menu
             
-        ## TODO: add new on_click command
+        def on_click(self):
+            path_to_open = input_dialog("Run", "Type in the destination path.")
+            try:
+                subprocess.Popen(path_to_open)
+            except Exception as e:
+                pyautogui.alert("Program not found.")
+    
     
     class SettingsMenu(SubMenu):
         def __iniit__(self, posX, posY, menu_name, width = 75):
